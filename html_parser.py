@@ -3,7 +3,8 @@ Pulls conversation from .html, appends consecutive messages into new line into o
 repeat for person 2 and write as a json into a jsonl file
 
 TODO:
-incorporate time for topic detection
+# - incorporate time for topic detection
+- order incorrect in some, first conversation starts with me, needs to be other person
 """
 
 
@@ -174,6 +175,7 @@ def scan_messages():
                 messages  = soup.select(message_selector)
                 if i <= 1:
                     print(f"skipping {file}")
+                    continue
                 if not messages:
                     print(f"skipping {file}")
                     log_writer.write(f"{file}" + "\n")
@@ -182,8 +184,8 @@ def scan_messages():
                     size_log_writer.write(str(file) + "\n")
                 else:
                     print(len(messages))
-                    # group_text_jsonl(root, file)
-                    group_text(root, file)
+                    group_text_jsonl(root, file)
+                    # group_text(root, file)
                     
 def group_text(root, sample):
     # puts into pairs_plain.json
@@ -196,7 +198,7 @@ def group_text(root, sample):
 
     user_message = ""
     with open(f"{root}/{sample}", "r", encoding="utf-8") as reader, \
-        open(f"./data/transformed/plain/{sample}-pairs_plain.jsonl", "w", encoding="utf-8") as writer:
+        open(f"./data/transformed/plain/{sample}-pairs_plain.json", "w", encoding="utf-8") as writer:
         soup = BeautifulSoup(reader, "html.parser")
         messages  = soup.select(message_selector)
         conversation_length = len(messages)

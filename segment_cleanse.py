@@ -1,4 +1,5 @@
 import jsonlines
+import os
 """
 filters out freshly segmented conversations
 
@@ -8,15 +9,25 @@ filter by char num
 """
 
 
-input_segments = "./data/pairs_grouped_topics.jsonl"
+input = "./data/pairs_grouped_topics.jsonl" #segments
 output = "./data/pairs_grouped_topics_filtered.jsonl"
+output_folder= ".data/transformed/plain/plain_pairs_filtered"
 
-def main():
+def scan_files():
+    file_path = os.listdir("./data/transformed/plain/plain_pairs")
+    for file in file_path:
+        segment_cleanse(file)
+        
+
+def segment_cleanse(file):
     
     data = []
     
-    with jsonlines.open(input_segments, "r") as reader, \
-    jsonlines.open(output, "w") as writer:
+    # with jsonlines.open(input, "r") as reader, \
+    # jsonlines.open(output, "w") as writer:
+    base_name = os.path.splitext(file)[0]    
+    with jsonlines.open(file, "r") as reader, \
+    jsonlines.open(f"{output_folder}/{base_name}_filtered.jsonl", "w") as writer:
         for i, point in enumerate(reader):
             if i > 1317:
                 break
@@ -36,5 +47,5 @@ def readlines():
                 print(conversations)
                 print(len(conversations))
 
-main()
+segment_cleanse() # for single
 # readlines()
