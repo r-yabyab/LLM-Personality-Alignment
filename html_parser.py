@@ -184,7 +184,8 @@ def scan_messages():
                     size_log_writer.write(str(file) + "\n")
                 else:
                     print(len(messages))
-                    group_text_jsonl(root, file)
+                    # group_text_jsonl(root, file)
+                    group_text(root, file)
                     
 def group_text(root, sample):
     # puts into pairs_plain.json
@@ -213,6 +214,11 @@ def group_text(root, sample):
             timestamp = parent.select_one(".chatlog__timestamp")["title"]
             dt = datetime.strptime(timestamp, "%A, %B %d, %Y %H:%M")
             
+            first_message_net = False
+            
+            if i == 0 and author == "net":
+                first_message_net = True
+            
             if author == next_author:
                 user_message += messages[i].get_text() + "\n"
             else:
@@ -220,16 +226,19 @@ def group_text(root, sample):
 
                 msg_tokens = len(tokenizer.encode(user_message, add_special_tokens=False, truncation=True, max_length=510))
 
-                if running_tokens + msg_tokens >= 300:
-                    # store current conversation
-                    conversation_list.append(message_list)
-
-                    # start new one
-                    message_list = [user_message]
-                    running_tokens = msg_tokens
+                if first_message_net:
+                    pass
                 else:
-                    message_list.append(user_message)
-                    running_tokens += msg_tokens
+                    if running_tokens + msg_tokens >= 300:
+                        # store current conversation
+                        conversation_list.append(message_list)
+
+                        # start new one
+                        message_list = [user_message]
+                        running_tokens = msg_tokens
+                    else:
+                        message_list.append(user_message)
+                        running_tokens += msg_tokens
 
                 user_message = ""
 
@@ -256,14 +265,21 @@ def group_text_jsonl(root, sample):
             author = parent.select_one("span", class_="chatlog__author").get_text()
             next_author = next_message.select_one("span", class_="chatlog__author").get_text()
             current_author = author
+            first_message_net = False
 
+            if i == 0 and author == "net":
+                first_message_net = True
+                
             if author == next_author:
                 user_message += messages[i].get_text() + "\n"
             else:
-                user_message += messages[i].get_text()
-                writer.write(json.dumps({"author": author, "content": user_message}, ensure_ascii=False) + "\n")
-                user_message = ""
-                current_author = None
+                if first_message_net:
+                    pass
+                else:
+                    user_message += messages[i].get_text()
+                    writer.write(json.dumps({"author": author, "content": user_message}, ensure_ascii=False) + "\n")
+                    user_message = ""
+                    current_author = None
 
         # flush last message
         if user_message and current_author:
