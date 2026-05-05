@@ -203,8 +203,6 @@ def group_text(root, sample):
         conversation_length = len(messages)
         start = 0
         end = conversation_length -1
-        
-        first_message_net = False
 
         for i in range(start, end):
             # user_message = ""
@@ -215,9 +213,6 @@ def group_text(root, sample):
             timestamp = parent.select_one(".chatlog__timestamp")["title"]
             dt = datetime.strptime(timestamp, "%A, %B %d, %Y %H:%M")
             
-            if i == 0 and author == "net":
-                first_message_net = True                
-            
             if author == next_author:
                 user_message += messages[i].get_text() + "\n"
             else:
@@ -225,20 +220,16 @@ def group_text(root, sample):
 
                 msg_tokens = len(tokenizer.encode(user_message, add_special_tokens=False, truncation=True, max_length=510))
 
-                if first_message_net:
-                    print("Wrong order")
+                if running_tokens + msg_tokens >= 300:
+                    # store current conversation
+                    conversation_list.append(message_list)
 
+                    # start new one
+                    message_list = [user_message]
+                    running_tokens = msg_tokens
                 else:
-                    if running_tokens + msg_tokens >= 300:
-                        # store current conversation
-                        conversation_list.append(message_list)
-
-                        # start new one
-                        message_list = [user_message]
-                        running_tokens = msg_tokens
-                    else:
-                        message_list.append(user_message)
-                        running_tokens += msg_tokens
+                    message_list.append(user_message)
+                    running_tokens += msg_tokens
 
                 user_message = ""
 
