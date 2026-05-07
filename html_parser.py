@@ -229,7 +229,7 @@ def group_text(root, sample):
                 if first_message_net:
                     pass
                 else:
-                    if running_tokens + msg_tokens >= 300:
+                    if running_tokens + msg_tokens >= 300 and not author == "net":
                         # store current conversation
                         conversation_list.append(message_list)
 
