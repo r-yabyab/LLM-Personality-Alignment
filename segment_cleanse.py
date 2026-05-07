@@ -9,9 +9,12 @@ filter by char num
 """
 
 
-input = "./data/pairs_grouped_topics.jsonl" #segments
-output = "./data/pairs_grouped_topics_filtered.jsonl"
-output_folder= ".data/transformed/plain/plain_pairs_filtered"
+# input = "./data/pairs_grouped_topics.jsonl" #segments
+input = "./data/plain_pairs_combined.jsonl" #segments
+# output = "./data/pairs_grouped_topics_filtered.jsonl"
+output = "./data/plain_pairs_combined_filtered.jsonl"
+# output_folder= ".data/transformed/plain/plain_pairs_filtered"
+output_folder= "./data"
 
 def scan_files():
     file_path = os.listdir("./data/transformed/plain/plain_pairs")
@@ -25,7 +28,7 @@ def segment_cleanse(file):
     
     # with jsonlines.open(input, "r") as reader, \
     # jsonlines.open(output, "w") as writer:
-    base_name = os.path.splitext(file)[0]    
+    base_name = os.path.splitext(os.path.basename(file))[0]
     with jsonlines.open(file, "r") as reader, \
     jsonlines.open(f"{output_folder}/{base_name}_filtered.jsonl", "w") as writer:
         for i, point in enumerate(reader):
@@ -38,7 +41,7 @@ def segment_cleanse(file):
                 writer.write(point)
                 
 def readlines():
-    with jsonlines.open(input_segments, "r") as reader:
+    with jsonlines.open(input, "r") as reader:
         for i,point in enumerate(reader):
             if i>1317:
                 break
@@ -47,5 +50,5 @@ def readlines():
                 print(conversations)
                 print(len(conversations))
 
-segment_cleanse() # for single
+segment_cleanse(input) # for single
 # readlines()

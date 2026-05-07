@@ -13,7 +13,8 @@ import jsonlines
             #     }
             # ]
           
-input_data = "./data/pairs_grouped_topics_filtered.jsonl"
+# input_data = "./data/pairs_grouped_topics_filtered.jsonl"
+input_data = "./data/plain_pairs_combined_filtered.jsonl"
 output = "./data/qa_pairs.jsonl"
             
 ROLE_MAP = {
