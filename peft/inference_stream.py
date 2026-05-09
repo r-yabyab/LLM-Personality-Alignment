@@ -1,6 +1,6 @@
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning, module="transformers.modeling_attn_mask_utils")
-warnings.filterwarnings("ignore", category=UserWarning, message=".*`max_new_tokens`.*`max_length`.*")
+warnings.filterwarnings("ignore", category=UserWarning, message=".*max_new_tokens.*max_length.*")
 
 from unsloth import FastLanguageModel
 from transformers import TextStreamer
@@ -30,7 +30,7 @@ tokenizer = get_chat_template(
 )
 
 # Configuration
-max_new_tokens = 300
+# max_new_tokens = 300
 text_streamer = TextStreamer(tokenizer, skip_prompt = True)
 history = []
 max_history = 8
@@ -47,7 +47,7 @@ else:
     print(f"Adapter config not found at {config_path}")
 
 # print(f"Temperature: {temperature}")
-print(f"Max new tokens: {max_new_tokens}")
+# print(f"Max new tokens: {max_new_tokens}")
 print("\nInteractive mode started. Type 'quit' or 'exit' to stop.\n")
 
 # Interactive loop
@@ -111,13 +111,14 @@ while True:
             temperature=0.8,
             top_p=0.95,
             top_k=64,
-            max_new_tokens=max_new_tokens,
+            #max_new_tokens=max_new_tokens,
             # repetition_penalty=1.3,
             use_cache=True
         )
 
         response = tokenizer.decode(outputs[0][inputs.shape[-1]:], skip_special_tokens=True)
-        print("Assistant:", response)
+        print(response)
+        print("")
         
         history.append({"role": "assistant", "content": response})
         history = history[-max_history:]
