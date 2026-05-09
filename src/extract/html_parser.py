@@ -166,10 +166,26 @@ def group_text_single():
 
         writer.write(json.dumps(conversation_list, ensure_ascii=False))
 
+def get_message_text(tag):
+    """Extract text from a message span, replacing chatlog__emoji images with their title."""
+    result = []
+    for child in tag.children:
+        name = getattr(child, 'name', None)
+        if name == 'img':
+            classes = child.get('class', [])
+            if any('chatlog__emoji' in c for c in classes):
+                title = child.get('title', '')
+                result.append(f':{title}:' if title else '')
+        elif name is not None:
+            result.append(get_message_text(child))
+        else:
+            result.append(str(child))
+    return ''.join(result)
+
 def scan_messages():
     files = os.listdir(f"{root}")
-    with open("logs/empty_log.txt", "w", encoding="utf-8") as log_writer, \
-        open("logs/small_files_log.txt", "w", encoding="utf-8") as size_log_writer:
+    with open("../../logs/empty_log.txt", "w", encoding="utf-8") as log_writer, \
+        open("../../logs/small_files_log.txt", "w", encoding="utf-8") as size_log_writer:
         for i, file in enumerate(files):
             with open(f"{root}/{file}", "r", encoding="utf-8") as reader:
                 soup = BeautifulSoup(reader, "html.parser")
@@ -221,9 +237,9 @@ def group_text(root, sample):
                 first_message_net = True
             
             if author == next_author:
-                user_message += messages[i].get_text() + "\n"
+                user_message += get_message_text(messages[i]) + "\n"
             else:
-                user_message += messages[i].get_text()
+                user_message += get_message_text(messages[i])
 
                 msg_tokens = len(tokenizer.encode(user_message, add_special_tokens=False, truncation=True, max_length=510))
 
