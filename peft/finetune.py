@@ -84,7 +84,75 @@ print(f"Train dataset size: {len(train_dataset)}")
 print(f"Eval dataset size: {len(eval_dataset)}")
 
 
+from transformers import TrainerCallback
+from torch.utils.tensorboard import SummaryWriter
+
+class EvalLossSpikeCallback(TrainerCallback):
+    def __init__(self, eval_dataset, tokenizer, threshold=0.05, top_k=3, max_seq_length=512, logging_dir=None):
+        self.prev_eval_loss = None
+        self.eval_dataset = eval_dataset
+        self.tokenizer = tokenizer
+        self.threshold = threshold  # relative increase, e.g. 0.05 = 5%
+        self.top_k = top_k
+        self.max_seq_length = max_seq_length
+        self.tb_writer = SummaryWriter(logging_dir) if logging_dir else None
+
+    def on_evaluate(self, args, state, control, metrics=None, model=None, **kwargs):
+        current_loss = metrics.get("eval_loss")
+        if current_loss is None:
+            return
+
+        if self.prev_eval_loss is not None:
+            increase = (current_loss - self.prev_eval_loss) / self.prev_eval_loss
+            if increase > self.threshold:
+                print(f"\n[SPIKE] eval_loss: {self.prev_eval_loss:.4f} -> {current_loss:.4f} (+{increase*100:.1f}%)")
+                self._log_worst_samples(model, state.global_step)
+
+        self.prev_eval_loss = current_loss
+
+    def _log_worst_samples(self, model, step):
+        import torch
+        model.eval()
+        device = next(model.parameters()).device
+        losses = []
+
+        with torch.no_grad():
+            for i, sample in enumerate(self.eval_dataset):
+                text = sample["text"]
+                enc = self.tokenizer(
+                    text,
+                    return_tensors="pt",
+                    truncation=True,
+                    max_length=self.max_seq_length,
+                ).to(device)
+                labels = enc["input_ids"].clone()
+                outputs = model(**enc, labels=labels)
+                losses.append((i, outputs.loss.item(), text))
+
+        losses.sort(key=lambda x: x[1], reverse=True)
+        print(f"  Top {self.top_k} highest-loss eval samples (step {step}):")
+        for rank, (idx, loss, text) in enumerate(losses[:self.top_k]):
+            preview = text[:400].replace("\n", " ")
+            print(f"  [{rank+1}] idx={idx} loss={loss:.4f} | {preview}\n")
+            if self.tb_writer:
+                self.tb_writer.add_text(
+                    f"spike/top{rank+1}_loss_{loss:.4f}",
+                    f"**idx**: {idx}  **loss**: {loss:.4f}\n\n```\n{text[:800]}\n```",
+                    global_step=step,
+                )
+
+        model.train()
+
 from trl import SFTConfig, SFTTrainer
+spike_cb = EvalLossSpikeCallback(
+    eval_dataset=eval_dataset,
+    tokenizer=tokenizer,
+    threshold=0.05,
+    top_k=3,
+    max_seq_length=max_seq_length,
+    logging_dir=logging_dir,
+)
+
 trainer = SFTTrainer(
     model = model,
     tokenizer = tokenizer,
@@ -94,6 +162,7 @@ trainer = SFTTrainer(
     dataset_text_field = "text",
     max_seq_length = max_seq_length,
     packing = False, # Can make training 5x faster for short sequences.
+    callbacks = [spike_cb],
     args = SFTConfig(
         per_device_train_batch_size = 2,
         gradient_accumulation_steps = 4,

@@ -190,9 +190,9 @@ def scan_messages():
             with open(f"{root}/{file}", "r", encoding="utf-8") as reader:
                 soup = BeautifulSoup(reader, "html.parser")
                 messages  = soup.select(message_selector)
-                if i <= 1:
-                    print(f"skipping {file}")
-                    continue
+                # if i <= 0:
+                #     print(f"skipping {file}")
+                #     continue
                 if not messages:
                     print(f"skipping {file}")
                     log_writer.write(f"{file}" + "\n")
