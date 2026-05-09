@@ -9,6 +9,7 @@ TODO:
 
 
 import os
+import re
 import json
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -167,11 +168,14 @@ def group_text_single():
         writer.write(json.dumps(conversation_list, ensure_ascii=False))
 
 def get_message_text(tag):
-    """Extract text from a message span, replacing chatlog__emoji images with their title."""
+    """Extract text from a message span, replacing chatlog__emoji images with their title.
+    Skips <a> tags and strips bare https?:// URLs from text nodes."""
     result = []
     for child in tag.children:
         name = getattr(child, 'name', None)
-        if name == 'img':
+        if name == 'a':
+            pass  # skip links entirely
+        elif name == 'img':
             classes = child.get('class', [])
             if any('chatlog__emoji' in c for c in classes):
                 title = child.get('title', '')
@@ -179,7 +183,8 @@ def get_message_text(tag):
         elif name is not None:
             result.append(get_message_text(child))
         else:
-            result.append(str(child))
+            text = re.sub(r'https?://\S+', '', str(child))
+            result.append(text)
     return ''.join(result)
 
 def scan_messages():
