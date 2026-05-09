@@ -206,8 +206,8 @@ def scan_messages():
                     size_log_writer.write(str(file) + "\n")
                 else:
                     print(len(messages))
-                    # group_text_jsonl(root, file)
-                    group_text(root, file)
+                    group_text_jsonl(root, file)
+                    # group_text(root, file)
                     
 def group_text(root, sample):
     # puts into pairs_plain.json
@@ -293,12 +293,14 @@ def group_text_jsonl(root, sample):
                 first_message_net = True
                 
             if author == next_author:
-                user_message += messages[i].get_text() + "\n"
+                # user_message += messages[i].get_text() + "\n"
+                user_message += get_message_text(messages[i]) + "\n"
             else:
                 if first_message_net:
                     pass
                 else:
-                    user_message += messages[i].get_text()
+                    # user_message += messages[i].get_text()
+                    user_message += get_message_text(messages[i])
                     writer.write(json.dumps({"author": author, "content": user_message}, ensure_ascii=False) + "\n")
                     user_message = ""
                     current_author = None
