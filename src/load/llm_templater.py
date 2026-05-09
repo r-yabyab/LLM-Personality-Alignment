@@ -14,8 +14,9 @@ import jsonlines
             # ]
           
 # input_data = "./data/pairs_grouped_topics_filtered.jsonl"
-input_data = "./data/plain_pairs_combined_filtered.jsonl"
-output = "./data/qa_pairs.jsonl"
+data_root = "../../data"
+input_data = f"{data_root}/plain_pairs_combined_filtered.jsonl"
+output = f"{data_root}/qa_pairs.jsonl"
             
 ROLE_MAP = {
     "Person_1": "user",

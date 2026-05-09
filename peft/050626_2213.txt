@@ -3,6 +3,7 @@ problems:
 - sometimes gives broken links
 - empty messages
 - sudden topic changes, bringing up random things but continues them well
+- 042926 run gave better conversational results compared to this one
 
 {'loss': '3.618', 'grad_norm': '0.9819', 'learning_rate': '0.0002', 'epoch': '0.02286'}
 {'loss': '3.757', 'grad_norm': '1.162', 'learning_rate': '0.0001992', 'epoch': '0.02667'}

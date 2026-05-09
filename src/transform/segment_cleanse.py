@@ -9,12 +9,11 @@ filter by char num
 """
 
 
+data_root = "../../data"
 # input = "./data/pairs_grouped_topics.jsonl" #segments
-input = "./data/plain_pairs_combined.jsonl" #segments
+input = f"{data_root}/plain_pairs_combined.jsonl" #segments
 # output = "./data/pairs_grouped_topics_filtered.jsonl"
-output = "./data/plain_pairs_combined_filtered.jsonl"
-# output_folder= ".data/transformed/plain/plain_pairs_filtered"
-output_folder= "./data"
+output = f"{data_root}/plain_pairs_combined_filtered.jsonl"
 
 def scan_files():
     file_path = os.listdir("./data/transformed/plain/plain_pairs")
@@ -30,7 +29,7 @@ def segment_cleanse(file):
     # jsonlines.open(output, "w") as writer:
     base_name = os.path.splitext(os.path.basename(file))[0]
     with jsonlines.open(file, "r") as reader, \
-    jsonlines.open(f"{output_folder}/{base_name}_filtered.jsonl", "w") as writer:
+    jsonlines.open(f"{data_root}/{base_name}_filtered.jsonl", "w") as writer:
         for i, point in enumerate(reader):
             if i > 1317:
                 break

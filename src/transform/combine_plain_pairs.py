@@ -1,8 +1,8 @@
 import os
 import glob
 
-input_dir = os.path.join(os.path.dirname(__file__), "data", "transformed", "plain", "plain_pairs")
-output_file = os.path.join(os.path.dirname(__file__), "plain_pairs_combined.jsonl")
+input_dir = os.path.join(os.path.dirname(__file__), "..", "..", "data", "transformed", "plain", "plain_pairs")
+output_file = os.path.join(os.path.dirname(__file__), "..", "..", "data", "plain_pairs_combined.jsonl")
 
 files = glob.glob(os.path.join(input_dir, "*.jsonl"))
 

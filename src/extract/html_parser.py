@@ -17,8 +17,9 @@ from sentence_transformers.util import cos_sim
 import jsonlines
 from transformers import BertTokenizer
 
-root = "./data/localex/msg/dms"
-message_selector = "span.chatlog__markdown-preserve" #span
+data_root = "../../data"
+root = f"{data_root}/localex/msg/dms"
+message_selector = "span.chatlog__markdown-preserve"
 short_timestamp = "chatlog__short-timestamp" #div
 # sample = "380890688247693314_short.html"
 sample = "380890688247693314.html"
@@ -37,7 +38,7 @@ def main():
     user_message = ""
     print(len(os.listdir(root)))
     with open(f"{root}/{sample}", "r", encoding="utf-8") as reader, \
-        open("./data/pairs.jsonl", "w", encoding="utf-8") as writer:
+        open(f"{data_root}/pairs.jsonl", "w", encoding="utf-8") as writer:
         soup = BeautifulSoup(reader, "html.parser")
         messages  = soup.select(message_selector)
         # for message in messages:
@@ -123,7 +124,7 @@ def group_text_single():
     user_message = ""
     # print(len(os.listdir(root)))
     with open(f"{root}/{sample}", "r", encoding="utf-8") as reader, \
-        open("./data/pairs_plain.jsonl", "w", encoding="utf-8") as writer:
+        open(f"{data_root}/pairs_plain.jsonl", "w", encoding="utf-8") as writer:
         soup = BeautifulSoup(reader, "html.parser")
         messages  = soup.select(message_selector)
         conversation_length = len(messages)
@@ -198,7 +199,7 @@ def group_text(root, sample):
 
     user_message = ""
     with open(f"{root}/{sample}", "r", encoding="utf-8") as reader, \
-        open(f"./data/transformed/plain/{sample}-pairs_plain.json", "w", encoding="utf-8") as writer:
+        open(f"{data_root}/transformed/plain/{sample}-pairs_plain.json", "w", encoding="utf-8") as writer:
         soup = BeautifulSoup(reader, "html.parser")
         messages  = soup.select(message_selector)
         conversation_length = len(messages)
@@ -251,7 +252,7 @@ def group_text(root, sample):
 def group_text_jsonl(root, sample):
     user_message = ""
     with open(f"{root}/{sample}", "r", encoding="utf-8") as reader, \
-        open(f"./data/transformed/{sample}-pairs_grouped.jsonl", "w", encoding="utf-8") as writer:
+        open(f"{data_root}/transformed/{sample}-pairs_grouped.jsonl", "w", encoding="utf-8") as writer:
         soup = BeautifulSoup(reader, "html.parser")
         messages = soup.select(message_selector)
         conversation_length = len(messages)
@@ -290,7 +291,7 @@ def group_text_jsonl(root, sample):
 def group_text_jsonl_single():
     user_message = ""
     with open(f"{root}/{sample}", "r", encoding="utf-8") as reader, \
-        open("./data/pairs_grouped.jsonl", "w", encoding="utf-8") as writer:
+        open(f"{data_root}/pairs_grouped.jsonl", "w", encoding="utf-8") as writer:
         soup = BeautifulSoup(reader, "html.parser")
         messages = soup.select(message_selector)
         conversation_length = len(messages)
@@ -322,7 +323,7 @@ def group_text_jsonl_single():
 # extracts tag text into 1 line each
 def raw_text():
     with open(f"{root}/{sample}", "r", encoding="utf-8") as reader, \
-    jsonlines.open("./data/rawtext.jsonl", "w") as writer:
+    jsonlines.open(f"{data_root}/rawtext.jsonl", "w") as writer:
         soup = BeautifulSoup(reader, "html.parser")
         messages  = soup.select(message_selector)
         conversation_length = len(messages)
