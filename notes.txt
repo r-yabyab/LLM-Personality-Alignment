@@ -24,3 +24,40 @@ User → LLM → text response → history
 What you want is:
 
 User → LLM → (maybe tool call) → MCP → tool result → LLM → final answer
+
+
+
+
+
+ctrl z to text wrap
+
+todo:
+- remove duplicates / small utterances
+    - multi-turn, remove small utterances when segmenting based on utterances (not full messages) as from paper
+- remove code
+    - check embeddings from uniXcoder
+    - 8b model only understands natlang
+- implement RAG for full conversation lookup, context maybe
+- implement sliding window for determining best conversation starting point 
+- check for "" in messages. Links to filter out
+    - implement emojis, just emoji messages will shows as "", goes through segmenter as well
+- Pull photos as descriptions
+
+todo (PEFT):
+- track which sample cause uptick in eval_loss
+At minimum:
+
+sample ID
+prompt (or hashed prompt)
+loss per token or per sequence
+sequence length
+optional: top-K highest-loss samples per eval run
+
+    More advanced setups also log:
+
+    token-level loss heatmaps
+    attention or truncation flags
+
+
+
+    - to implement topic labelling for reviewing
