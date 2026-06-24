@@ -1,14 +1,14 @@
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning, module="transformers.modeling_attn_mask_utils")
+warnings.filterwarnings("ignore", category=UserWarning, message=".*max_new_tokens.*max_length.*")
+
 import asyncio
 from llm import LocalLLM
 from router import ToolRouter
 from mcp_client import MCPClient
 
-MODEL_PATH = "outputs-full/checkpoint-132"
-# MODEL_PATH = "unsloth/Meta-Llama-3.1-8B-bnb-4bit"
-
-
-history = []
-max_history = 8
+# MODEL_PATH = "outputs-full/checkpoint-132"
+MODEL_PATH = "unsloth/Meta-Llama-3.1-8B-bnb-4bit"
 
 
 router = ToolRouter()
@@ -50,61 +50,40 @@ async def run():
                         {"query": user_input}
                     )
 
-                    # Extract and display raw data
-                    tool_data = str(result)
-                    if "TextContent" in tool_data and "text='" in tool_data:
-                        import re
-                        match = re.search(r"text='([^']*)'", tool_data.replace("\\n", "\n"))
-                        if match:
-                            tool_data = match.group(1)
-                    
-                    print(f"\n{tool_data}\n")
-
-                    # Add to history
-                    history.append({"role": "user", "content": user_input})
-                    history.append({"role": "assistant", "content": tool_data})
-                    history[:] = history[-max_history:]
-
-                    # --- LLM FORMATTING (COMMENTED OUT) ---
-                    # # Add user message to history
-                    # history.append({"role": "user", "content": user_input})
-                    # history[:] = history[-max_history:]
-
-                    # # Create a prompt for the LLM that includes the tool data
-                    # # Format the tool result for the LLM to present naturally
+                    # # Extract and display raw data
                     # tool_data = str(result)
+                    # if "TextContent" in tool_data and "text='" in tool_data:
+                    #     import re
+                    #     match = re.search(r"text='([^']*)'", tool_data.replace("\\n", "\n"))
+                    #     if match:
+                    #         tool_data = match.group(1)
                     
-                    # # Build a clear instruction for the LLM
-                    # llm_prompt = [
-                    #     *history[:-1],  # Previous history (excluding the current user message)
-                    #     {
-                    #         "role": "user",
-                    #         "content": f"Question: {user_input}\n\nI retrieved this data:\n\n{tool_data}\n\nPlease present this information in a friendly, conversational way as if answering the question directly."
-                    #     }
-                    # ]
+                    # print(f"\n{tool_data}\n")
 
-                    # # Generate natural response from LLM
-                    # response = llm.generate(llm_prompt)
-                    # print("Assistant:", response)
+                    # --- LLM FORMATTING ---
+                    # Format the tool result for the LLM to present naturally
+                    tool_data = str(result)
+                    
+                    # Build a prompt for the LLM
+                    llm_prompt = [
+                        {
+                            "role": "user",
+                            "content": f"Question: {user_input}\n\nI retrievedd this data:\n\n{tool_data}\n\nPlease present this information in a friendly, conversational way as if answering the question directly."
+                        }
+                    ]
 
-                    # # Add LLM's natural response to history
-                    # history.append({"role": "assistant", "content": response})
-                    # history[:] = history[-max_history:]
+                    # Generate natural response from LLM
+                    response = llm.generate(llm_prompt)
+                    print("Assistant:", response)
 
                     continue
 
                 # --------------------
                 # NORMAL LLM PATH
                 # --------------------
-                history.append({"role": "user", "content": user_input})
-                history[:] = history[-max_history:]
-
-                response = llm.generate(history)
+                response = llm.generate([{"role": "user", "content": user_input}])
 
                 print("Assistant:", response)
-
-                history.append({"role": "assistant", "content": response})
-                history[:] = history[-max_history:]
 
 
 if __name__ == "__main__":

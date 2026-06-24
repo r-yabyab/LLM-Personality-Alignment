@@ -16,7 +16,7 @@ class LocalLLM:
             chat_template="llama",
         )
 
-    def generate(self, messages, temperature=0.8):
+    def generate(self, messages, temperature=0.8, max_new_tokens=300):
         inputs = self.tokenizer.apply_chat_template(
             messages,
             add_generation_prompt=True,
@@ -32,6 +32,7 @@ class LocalLLM:
             temperature=temperature,
             top_p=0.95,
             top_k=64,
+            max_new_tokens=max_new_tokens,
             use_cache=True,
         )
 
