@@ -1,0 +1,26 @@
+User
+ ↓
+LLM (decides: call tool or answer)
+ ↓
+Python parser detects tool call
+ ↓
+MCP client calls server
+ ↓
+result returned to LLM
+ ↓
+final answer
+
+Right now you only have:
+
+User → LLM → Answer
+
+
+
+
+Right now your system does:
+
+User → LLM → text response → history
+
+What you want is:
+
+User → LLM → (maybe tool call) → MCP → tool result → LLM → final answer
